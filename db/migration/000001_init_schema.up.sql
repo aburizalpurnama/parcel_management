@@ -8,69 +8,87 @@ CREATE TYPE "product_statusess" AS ENUM (
   'success'
 );
 
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 CREATE TABLE "roles" (
-  "id" integer PRIMARY KEY,
-  "name" text,
+  "id" uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  "name" varchar NOT NULL,
   "created_at" timestamp DEFAULT (now()),
-  "updated_at" timestamp
+  "deleted_at" timestamp DEFAULT null,
+  "updated_at" timestamp DEFAULT null
 );
 
 CREATE TABLE "users" (
-  "id" integer PRIMARY KEY,
-  "name" varchar,
-  "email" varchar,
-  "email_verified_at" timestamp,
-  "password" varchar,
-  "token" varchar,
-  "role_id" integer,
-  "created_at" timestamp DEFAULT (now()),
-  "updated_at" timestamp
+  "id" uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  "name" varchar NOT NULL,
+  "email" varchar NOT NULL,
+  "email_verified_at" timestamp DEFAULT null,
+  "password" varchar NOT NULL,
+  "token" varchar DEFAULT null,
+  "role_id" uuid,
+  "created_at" timestamp NOT NULL DEFAULT (now()),
+  "deleted_at" timestamp DEFAULT null,
+  "updated_at" timestamp DEFAULT null
 );
 
-CREATE TABLE "products" (
-  "id" char(32) PRIMARY KEY,
-  "unit_id" varchar(32),
-  "delivered_by" text,
-  "type" product_types,
-  "qty" integer,
-  "owner" varchar,
-  "phone" varchar,
-  "user_in" integer,
-  "user_out" integer,
-  "picked_by" text,
-  "picked_at" timestamp,
-  "deleted_at" timestamp,
+CREATE TABLE "transactions" (
+  "id" uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  "unit_id" uuid,
+  "delivered_by" text NOT NULL,
+  "type" product_types NOT NULL,
+  "qty" integer NOT NULL,
+  "owner" varchar NOT NULL,
+  "phone" varchar NOT NULL,
+  "user_in_id" uuid,
+  "user_out_id" uuid DEFAULT null,
+  "picked_by" text NOT NULL,
+  "picked_at" timestamp DEFAULT null,
+  "deleted_at" timestamp DEFAULT null,
   "created_at" timestamp DEFAULT (now()),
-  "updated_at" timestamp
+  "updated_at" timestamp DEFAULT null
 );
 
 CREATE TABLE "units" (
-  "id" char(32) PRIMARY KEY,
-  "no" varchar,
-  "email" varchar,
-  "item_pending_qty" integer,
-  "phone" varchar,
-  "deleted_at" timestamp,
+  "id" uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+  "no" varchar NOT NULL,
+  "email" varchar NOT NULL,
+  "item_pending_qty" integer DEFAULT 0,
+  "phone" varchar NOT NULL,
+  "deleted_at" timestamp DEFAULT null,
   "created_at" timestamp DEFAULT (now()),
-  "updated_at" timestamp
+  "updated_at" timestamp DEFAULT null
 );
 
-COMMENT ON COLUMN "products"."delivered_by" IS 'nama kurir pengantar paket';
+COMMENT ON COLUMN "transactions"."delivered_by" IS 'nama kurir pengantar paket';
 
-COMMENT ON COLUMN "products"."owner" IS 'nama pemesan paket';
+COMMENT ON COLUMN "transactions"."owner" IS 'nama pemesan paket';
 
-COMMENT ON COLUMN "products"."phone" IS 'nomor telpon pemesan paket';
+COMMENT ON COLUMN "transactions"."phone" IS 'nomor telpon pemesan paket';
 
-COMMENT ON COLUMN "products"."user_in" IS 'user yang menerima paket';
+COMMENT ON COLUMN "transactions"."user_in_id" IS 'user yang menerima paket';
 
-COMMENT ON COLUMN "products"."user_out" IS 'user yang mengeluarkan paket';
+COMMENT ON COLUMN "transactions"."user_out_id" IS 'user yang mengeluarkan paket';
 
-COMMENT ON COLUMN "products"."picked_by" IS 'nama pengambil paket';
+COMMENT ON COLUMN "transactions"."picked_by" IS 'nama pengambil paket';
 
 ALTER TABLE "users" ADD FOREIGN KEY ("role_id") REFERENCES "roles" ("id");
 
-ALTER TABLE "products" ADD FOREIGN KEY ("unit_id") REFERENCES "units" ("id");
+ALTER TABLE "transactions" ADD FOREIGN KEY ("unit_id") REFERENCES "units" ("id");
 
-ALTER TABLE "products" ADD FOREIGN KEY ("user_in") REFERENCES "users" ("id");
+ALTER TABLE "units"
+ADD CONSTRAINT "no_unit_unique" UNIQUE (no);
 
-ALTER TABLE "products" ADD FOREIGN KEY ("user_out") REFERENCES "users" ("id");
+ALTER TABLE "units"
+ADD CONSTRAINT "email_unit_unique" UNIQUE (email);
+
+ALTER TABLE "units"
+ADD CONSTRAINT "phone_unit_unique" UNIQUE (phone);
+
+ALTER TABLE "users"
+ADD CONSTRAINT "email_user_unique" UNIQUE (email);
+
+ALTER TABLE "users"
+ADD CONSTRAINT "password_user_unique" UNIQUE (password);
+
+ALTER TABLE "users"
+ADD CONSTRAINT "token_user_unique" UNIQUE (token);

@@ -28,9 +28,8 @@ migrateup:
 	migrate -path db/migration -database "postgresql://postgres:password@localhost:5432/parcel_management?sslmode=disable" -verbose up
 	@echo Success Migrate Up
 
-## Migrate up
+## Migrate down
 migratedown:
 	@echo Migrate Down..
 	migrate -path db/migration -database "postgresql://postgres:password@localhost:5432/parcel_management?sslmode=disable" -verbose down
 	@echo Success Migrate Down
-
