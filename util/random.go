@@ -31,6 +31,7 @@ func RandomString(n int) string {
 }
 
 func RandomEmail() string {
+	rand.Seed(time.Now().UTC().UnixNano())
 	return fmt.Sprintf("%s@mail.com", RandomString(6))
 }
 

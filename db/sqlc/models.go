@@ -100,14 +100,14 @@ func (ns NullProductTypes) Value() (driver.Value, error) {
 type Role struct {
 	ID        uuid.UUID    `json:"id"`
 	Name      string       `json:"name"`
-	CreatedAt sql.NullTime `json:"created_at"`
+	CreatedAt time.Time    `json:"created_at"`
 	DeletedAt sql.NullTime `json:"deleted_at"`
 	UpdatedAt sql.NullTime `json:"updated_at"`
 }
 
 type Transaction struct {
-	ID     uuid.UUID     `json:"id"`
-	UnitID uuid.NullUUID `json:"unit_id"`
+	ID     uuid.UUID `json:"id"`
+	UnitID uuid.UUID `json:"unit_id"`
 	// nama kurir pengantar paket
 	DeliveredBy string       `json:"delivered_by"`
 	Type        ProductTypes `json:"type"`
@@ -117,15 +117,15 @@ type Transaction struct {
 	// nomor telpon pemesan paket
 	Phone string `json:"phone"`
 	// user yang menerima paket
-	UserInID uuid.NullUUID `json:"user_in_id"`
+	UserInID uuid.UUID `json:"user_in_id"`
 	// user yang mengeluarkan paket
 	UserOutID uuid.NullUUID `json:"user_out_id"`
 	// nama pengambil paket
-	PickedBy  string       `json:"picked_by"`
-	PickedAt  sql.NullTime `json:"picked_at"`
-	DeletedAt sql.NullTime `json:"deleted_at"`
-	CreatedAt sql.NullTime `json:"created_at"`
-	UpdatedAt sql.NullTime `json:"updated_at"`
+	PickedBy  sql.NullString `json:"picked_by"`
+	PickedAt  sql.NullTime   `json:"picked_at"`
+	DeletedAt sql.NullTime   `json:"deleted_at"`
+	CreatedAt sql.NullTime   `json:"created_at"`
+	UpdatedAt sql.NullTime   `json:"updated_at"`
 }
 
 type Unit struct {
@@ -146,7 +146,7 @@ type User struct {
 	EmailVerifiedAt sql.NullTime   `json:"email_verified_at"`
 	Password        string         `json:"password"`
 	Token           sql.NullString `json:"token"`
-	RoleID          uuid.NullUUID  `json:"role_id"`
+	RoleID          uuid.UUID      `json:"role_id"`
 	CreatedAt       time.Time      `json:"created_at"`
 	DeletedAt       sql.NullTime   `json:"deleted_at"`
 	UpdatedAt       sql.NullTime   `json:"updated_at"`

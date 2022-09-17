@@ -13,7 +13,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE "roles" (
   "id" uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
   "name" varchar NOT NULL,
-  "created_at" timestamp DEFAULT (now()),
+  "created_at" timestamp DEFAULT (now()) NOT NULL,
   "deleted_at" timestamp DEFAULT null,
   "updated_at" timestamp DEFAULT null
 );
@@ -25,7 +25,7 @@ CREATE TABLE "users" (
   "email_verified_at" timestamp DEFAULT null,
   "password" varchar NOT NULL,
   "token" varchar DEFAULT null,
-  "role_id" uuid,
+  "role_id" uuid NOT NULL,
   "created_at" timestamp NOT NULL DEFAULT (now()),
   "deleted_at" timestamp DEFAULT null,
   "updated_at" timestamp DEFAULT null
@@ -33,15 +33,15 @@ CREATE TABLE "users" (
 
 CREATE TABLE "transactions" (
   "id" uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
-  "unit_id" uuid,
+  "unit_id" uuid NOT NULL,
   "delivered_by" text NOT NULL,
   "type" product_types NOT NULL,
   "qty" integer NOT NULL,
   "owner" varchar NOT NULL,
   "phone" varchar NOT NULL,
-  "user_in_id" uuid,
-  "user_out_id" uuid DEFAULT null,
-  "picked_by" text NOT NULL,
+  "user_in_id" uuid NOT NULL,
+  "user_out_id" uuid  DEFAULT null,
+  "picked_by" text DEFAULT null,
   "picked_at" timestamp DEFAULT null,
   "deleted_at" timestamp DEFAULT null,
   "created_at" timestamp DEFAULT (now()),

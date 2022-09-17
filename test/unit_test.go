@@ -1,4 +1,4 @@
-package db
+package test
 
 import (
 	"context"
@@ -50,7 +50,7 @@ func TestGetListUnit(t *testing.T) {
 func TestUpdatePhoneUnit(t *testing.T) {
 	unit1 := createRandomUnit(t)
 	newPhone := util.RandomPhone()
-	arg := db.UpdatePhoneUnitParams{newPhone, unit1.ID}
+	arg := db.UpdatePhoneUnitParams{Phone: newPhone, ID: unit1.ID}
 
 	err := testQueries.UpdatePhoneUnit(context.Background(), arg)
 	require.NoError(t, err)

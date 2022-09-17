@@ -11,7 +11,7 @@ require (
 )
 
 require (
-	github.com/lib/pq v1.10.7 // indirect
+	github.com/lib/pq v1.10.7
 	github.com/stretchr/testify v1.8.0
-	golang.org/x/exp v0.0.0-20220915210609-840b3808d824
+	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90
 )

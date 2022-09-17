@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/google/uuid"
 )
@@ -21,13 +22,13 @@ VALUES (
 `
 
 type CreateTransactionParams struct {
-	UnitID      uuid.NullUUID `json:"unit_id"`
-	DeliveredBy string        `json:"delivered_by"`
-	Type        ProductTypes  `json:"type"`
-	Qty         int32         `json:"qty"`
-	Owner       string        `json:"owner"`
-	Phone       string        `json:"phone"`
-	UserInID    uuid.NullUUID `json:"user_in_id"`
+	UnitID      uuid.UUID    `json:"unit_id"`
+	DeliveredBy string       `json:"delivered_by"`
+	Type        ProductTypes `json:"type"`
+	Qty         int32        `json:"qty"`
+	Owner       string       `json:"owner"`
+	Phone       string       `json:"phone"`
+	UserInID    uuid.UUID    `json:"user_in_id"`
 }
 
 func (q *Queries) CreateTransaction(ctx context.Context, arg CreateTransactionParams) (Transaction, error) {
@@ -70,14 +71,104 @@ func (q *Queries) DeleteTransaction(ctx context.Context, id uuid.UUID) error {
 	return err
 }
 
-const getListTransactions = `-- name: GetListTransactions :many
+const getListAllTransactions = `-- name: GetListAllTransactions :many
 SELECT id, unit_id, delivered_by, type, qty, owner, phone, user_in_id, user_out_id, picked_by, picked_at, deleted_at, created_at, updated_at FROM transactions
 WHERE deleted_at IS NULL
 ORDER BY id
 `
 
-func (q *Queries) GetListTransactions(ctx context.Context) ([]Transaction, error) {
-	rows, err := q.db.QueryContext(ctx, getListTransactions)
+func (q *Queries) GetListAllTransactions(ctx context.Context) ([]Transaction, error) {
+	rows, err := q.db.QueryContext(ctx, getListAllTransactions)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Transaction
+	for rows.Next() {
+		var i Transaction
+		if err := rows.Scan(
+			&i.ID,
+			&i.UnitID,
+			&i.DeliveredBy,
+			&i.Type,
+			&i.Qty,
+			&i.Owner,
+			&i.Phone,
+			&i.UserInID,
+			&i.UserOutID,
+			&i.PickedBy,
+			&i.PickedAt,
+			&i.DeletedAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getListDoneTransactions = `-- name: GetListDoneTransactions :many
+SELECT id, unit_id, delivered_by, type, qty, owner, phone, user_in_id, user_out_id, picked_by, picked_at, deleted_at, created_at, updated_at FROM transactions
+WHERE deleted_at IS NULL
+AND picked_at IS NOT NULL
+ORDER BY id
+`
+
+func (q *Queries) GetListDoneTransactions(ctx context.Context) ([]Transaction, error) {
+	rows, err := q.db.QueryContext(ctx, getListDoneTransactions)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Transaction
+	for rows.Next() {
+		var i Transaction
+		if err := rows.Scan(
+			&i.ID,
+			&i.UnitID,
+			&i.DeliveredBy,
+			&i.Type,
+			&i.Qty,
+			&i.Owner,
+			&i.Phone,
+			&i.UserInID,
+			&i.UserOutID,
+			&i.PickedBy,
+			&i.PickedAt,
+			&i.DeletedAt,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getListPendingTransactions = `-- name: GetListPendingTransactions :many
+SELECT id, unit_id, delivered_by, type, qty, owner, phone, user_in_id, user_out_id, picked_by, picked_at, deleted_at, created_at, updated_at FROM transactions
+WHERE deleted_at IS NULL
+AND picked_at IS NULL
+ORDER BY id
+`
+
+func (q *Queries) GetListPendingTransactions(ctx context.Context) ([]Transaction, error) {
+	rows, err := q.db.QueryContext(ctx, getListPendingTransactions)
 	if err != nil {
 		return nil, err
 	}
@@ -144,16 +235,22 @@ func (q *Queries) GetTransactionById(ctx context.Context, id uuid.UUID) (Transac
 const updateTransaction = `-- name: UpdateTransaction :exec
 UPDATE transactions 
 SET qty = $1, user_out_id = $2, picked_by = $3, picked_at = (now()), updated_at = (now())
-WHERE id = $2
+WHERE id = $4
 `
 
 type UpdateTransactionParams struct {
-	Qty       int32         `json:"qty"`
-	UserOutID uuid.NullUUID `json:"user_out_id"`
-	PickedBy  string        `json:"picked_by"`
+	Qty       int32          `json:"qty"`
+	UserOutID uuid.NullUUID  `json:"user_out_id"`
+	PickedBy  sql.NullString `json:"picked_by"`
+	ID        uuid.UUID      `json:"id"`
 }
 
 func (q *Queries) UpdateTransaction(ctx context.Context, arg UpdateTransactionParams) error {
-	_, err := q.db.ExecContext(ctx, updateTransaction, arg.Qty, arg.UserOutID, arg.PickedBy)
+	_, err := q.db.ExecContext(ctx, updateTransaction,
+		arg.Qty,
+		arg.UserOutID,
+		arg.PickedBy,
+		arg.ID,
+	)
 	return err
 }
