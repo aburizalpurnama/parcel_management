@@ -13,6 +13,6 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: apart
+      POSTGRES_DB: parcel_management
     volumes:
       - ./db-data/postgres/:/var/lib/postgresql/data/
