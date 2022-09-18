@@ -44,7 +44,7 @@ jobs:
           which migrate
 
       - name: Run migration up
-        run: migrate -path db/migration -database "postgresql://postgres:password@localhost:5432/simple_bank?sslmode=disable" -verbose up
+        run: migrate -path db/migration -database "postgresql://postgres:password@localhost:5432/parcel_management?sslmode=disable" -verbose up
       
       - name: Test
         run: make runtest
