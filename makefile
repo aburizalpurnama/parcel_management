@@ -33,3 +33,8 @@ migratedown:
 	@echo Migrate Down..
 	migrate -path db/migration -database "postgresql://postgres:password@localhost:5432/parcel_management?sslmode=disable" -verbose down
 	@echo Success Migrate Down
+
+runtest:
+	@echo Run all test..
+	go test -count=1 ./test/...
+	@echo Done.

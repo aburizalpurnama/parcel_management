@@ -88,6 +88,13 @@
     - Buat function untuk Creation Operation
         (Create Account, Create User, Create Unit, etc)
 
+## 6. Implementasi Transactional (if necessery)
+
+## 7. Setup Continous Integration (CI) using Github Action
+
+1. 
+
+
 ## NOTE
 
 ### ~> Jika terdapat session masih aktif saat drop database.
